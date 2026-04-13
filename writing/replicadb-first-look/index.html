@@ -1,0 +1,118 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet"><title>ReplicaDB: A First Look at Cross-Database Replication | Empty Catch</title><meta name="description" content="Notes on where ReplicaDB fits, what it gets right, and where a heavier replication tool is still the better call."><link rel="canonical" href="https://emptycatch.com/writing/replicadb-first-look/"><meta property="og:title" content="ReplicaDB: A First Look at Cross-Database Replication | Empty Catch"><meta property="og:description" content="Notes on where ReplicaDB fits, what it gets right, and where a heavier replication tool is still the better call."><meta property="og:type" content="website"><meta property="og:url" content="https://emptycatch.com/writing/replicadb-first-look/"><meta property="og:site_name" content="Empty Catch"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="application/rss+xml" title="Empty Catch" href="/rss.xml"><link rel="stylesheet" href="/_astro/about.BpFPM3ZA.css"></head> <body> <div class="site-shell"> <header class="site-header"> <div class="container shell-row"> <a class="brand" href="/"> <span class="avatar-badge" aria-hidden="true">B</span> <span class="brand-copy"> <span class="brand-name">Bryan</span> <span class="brand-tagline">Empty Catch</span> </span> </a> <div class="header-links"> <nav class="site-nav" aria-label="Primary"> <a href="/">Home</a> <a class="active" href="/writing/">Writing</a><a href="/about/">About</a> </nav> <a class="github-link" href="https://github.com/yourusername" rel="noreferrer" target="_blank"> GitHub </a> </div> </div> </header> <main class="site-main">  <div class="container page-stack"> <article class="article-shell"> <header class="article-header"> <p class="eyebrow">Writing</p> <h1>ReplicaDB: A First Look at Cross-Database Replication</h1> <div class="article-meta"> <time datetime="2026-04-12T03:00:00.000Z">Apr 11, 2026</time>  </div> <p class="article-summary">Notes on where ReplicaDB fits, what it gets right, and where a heavier replication tool is still the better call.</p> </header> <div class="prose-card article-prose"> <h2 id="what-problem-does-replicadb-solve">What Problem Does ReplicaDB Solve?</h2>
+<p>Data replication between different systems is core to any distributed system.
+You can do this in a ton of different ways.
+You could write up REST endpoints and add logic to have the systems push data to each other.
+You could set up data queues with ActiveMQ/RabbitMQ/Kafka to make topics allowing many systems to subscribe to data.
+You can do flat out database copies that you ship out to different instances.</p>
+<p>You typically do this kind of copying and synchronization with non-colocated systems - essentially when they can’t share the data in any reasonable way.
+Data replication have suites of tools out there we can use.
+Typically these seem to shine when bulk data movement is required.
+Small updates <em>might</em> be overkill.</p>
+<p>So let’s explore ReplicaDB</p>
+<h2 id="how-it-works">How It Works</h2>
+<p>ReplicaDB runs by default as a command line utility, but since it’s a jar it’s feasible to incorporate into your system.
+Running it on the command line would probably be the best approach.
+You could hook it up with a cron configuration or any other scheduling system.</p>
+<p>As an example as a command (lifted from their website):</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">replicadb</span><span style="color:#79B8FF"> --mode=complete</span><span style="color:#79B8FF"> -j=1</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--sink-connect=jdbc:oracle:thin:@$ORAHOST:$ORAPORT:$ORASID </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#E1E4E8">--sink-user=$ORAUSER </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#E1E4E8">--sink-password=$ORAPASS </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#E1E4E8">--sink-table=dept </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#E1E4E8">--source-connect=jdbc:postgresql://$PGHOST/osalvador </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#E1E4E8">--source-table=dept </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#E1E4E8">--source-columns=dept.*</span></span></code></pre>
+<p>You could also shove these settings into property files you can point to. For example:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>mode=complete</span></span>
+<span class="line"><span>jobs=1</span></span>
+<span class="line"><span>source.connect=jdbc:postgresql://{ip}:{port}/{SOURCE_DB}</span></span>
+<span class="line"><span>source.user={DB_USER}</span></span>
+<span class="line"><span>source.password={DB_PASSWORD}</span></span>
+<span class="line"><span>source.table=customers</span></span>
+<span class="line"><span>sink.connect=jdbc:postgresql://{ip}:{port}/{SINK_DB}</span></span>
+<span class="line"><span>sink.user={DB_USER}</span></span>
+<span class="line"><span>sink.password={DB_PASSWORD}</span></span>
+<span class="line"><span>sink.table=customers</span></span>
+<span class="line"><span>sink.staging-schema=public</span></span></code></pre>
+<h2 id="features">Features</h2>
+<h4 id="complete-mode">Complete Mode</h4>
+<p>Complete mode is probably the most expensive, but more robust strategy.
+The sink database is completely truncated and the source database is fully copied over into the sink.</p>
+<p>Drawbacks are that the synchronization scales with the size of the data, not necessarily with the number of changes.
+This will naturally increase bandwith and can make the synchronization take longer.</p>
+<p>So, below in the code from the github site, the data copy from the source to the sink is an <strong>overwrite</strong>. Data in that table is not safe.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#6A737D">  # Sink has data that source does not — complete should wipe it</span></span>
+<span class="line"><span style="color:#E1E4E8">  insert_customers(source_conn, [</span><span style="color:#79B8FF">RETAIL_ROW</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"><span style="color:#E1E4E8">  insert_customers(sink_conn, [</span><span style="color:#79B8FF">ENTERPRISE_ROW</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  replicadb(</span><span style="color:#FFAB70">mode</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"complete"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  assert</span><span style="color:#E1E4E8"> count_rows(sink_conn) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#F97583">  with</span><span style="color:#E1E4E8"> sink_conn.cursor() </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> cur:</span></span>
+<span class="line"><span style="color:#E1E4E8">      cur.execute(</span><span style="color:#9ECBFF">"SELECT customer_type FROM customers"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">      assert</span><span style="color:#E1E4E8"> cur.fetchone()[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">==</span><span style="color:#9ECBFF"> "retail"</span></span></code></pre>
+<h4 id="incremental-mode">Incremental Mode</h4>
+<p>Incremental allows you to specify a filter to apply to the source’s data before it’s copied to the sink.
+A truncate is no longer required new data is simply appended.
+This is useful for a couple situations:</p>
+<ul>
+<li>Sending a list of events, like user interactions, logs, etc. These are events that always append-only and don’t alter the previous rows.</li>
+<li>Sending data that needs to be processed, like row updates, so you can write code to handle
+the data updates (ehhh… this is kinda like events?)</li>
+</ul>
+<p>Because you have the ability to specify a filter, you can use a data watermark technique to get new records.
+This could either be an auto incrementing ID, or a “updated_at” timestamp column.
+Storing that watermark is of course on you, which honestly might be preferable.</p>
+<p>So in the example from the github code. We can see the incremental update mode.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#6A737D">  # Complete sync first</span></span>
+<span class="line"><span style="color:#E1E4E8">  insert_customers(source_conn, [</span><span style="color:#79B8FF">RETAIL_ROW</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">ENTERPRISE_ROW</span><span style="color:#E1E4E8">])</span></span>
+<span class="line"><span style="color:#E1E4E8">  replicadb(</span><span style="color:#FFAB70">mode</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"complete"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">  assert</span><span style="color:#E1E4E8"> count_rows(sink_conn) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  with</span><span style="color:#E1E4E8"> source_conn.cursor() </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> cur:</span></span>
+<span class="line"><span style="color:#E1E4E8">      cur.execute(</span><span style="color:#9ECBFF">"SELECT MAX(id) FROM customers"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">      last_id </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> cur.fetchone()[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  # Add a third row and sync incrementally</span></span>
+<span class="line"><span style="color:#E1E4E8">  new_row </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (</span></span>
+<span class="line"><span style="color:#9ECBFF">      "retail"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Bob Jones"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"bob@example.com"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">      "555-0003"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Denver"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"USA"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">None</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">None</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  )</span></span>
+<span class="line"><span style="color:#E1E4E8">  insert_customers(source_conn, [new_row])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  replicadb(</span><span style="color:#FFAB70">mode</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"incremental"</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">extra</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{</span><span style="color:#9ECBFF">"source.where"</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">f</span><span style="color:#9ECBFF">"id > </span><span style="color:#79B8FF">{</span><span style="color:#E1E4E8">last_id</span><span style="color:#79B8FF">}</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">})</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  # All three rows should be in the sink — existing ones untouched</span></span>
+<span class="line"><span style="color:#F97583">  assert</span><span style="color:#E1E4E8"> count_rows(sink_conn) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 3</span></span></code></pre>
+<h2 id="why-not-just-write-your-own-sql">Why Not Just Write Your Own SQL?</h2>
+<p>For the situations I forsee, I don’t necessarily</p>
+<ul>
+<li>For small, single-vendor tables: you probably don’t need it</li>
+<li>Where ReplicaDB pulls ahead:
+<ul>
+<li><strong>Parallelism</strong> - <code>jobs=N</code> splits the table into chunks across multiple connections; correct range partitioning is non-trivial to implement</li>
+<li><strong>Staging</strong> - writes to a staging table first, then promotes; a failed run doesn’t leave the sink half-written</li>
+<li><strong>Cross-vendor type mapping</strong> - handles Oracle to Postgres and similar combinations without a hand-rolled translation layer</li>
+<li><strong>Memory management</strong> - streams in fetch-size chunks; easy to OOM yourself loading a large result set naively</li>
+</ul>
+</li>
+<li>Rule of thumb: roll your own if same-vendor plus modest table size plus no parallel requirement; reach for ReplicaDB when any of those stops being true</li>
+</ul>
+<h2 id="what-it-gets-right">What It Gets Right</h2>
+<ul>
+<li>Zero infrastructure overhead</li>
+<li>Multi-vendor via JDBC</li>
+<li>Simple mental model</li>
+</ul>
+<h2 id="where-it-falls-short">Where It Falls Short</h2>
+<ul>
+<li>No native upsert, so duplicate rows still fail on constraints</li>
+<li>No delete awareness without soft-delete workarounds</li>
+<li>Watermark state management is entirely on you</li>
+<li>No schema migration</li>
+</ul>
+<h2 id="verdict">Verdict</h2>
+<ul>
+<li>Good fit for simple, scheduled bulk copies</li>
+<li>Reach for a heavier tool (Debezium, Airbyte, or pg_logical) when you need upserts, hard deletes, or automatic checkpointing</li>
+</ul> </div> </article> </div>  </main> <footer class="site-footer"> <div class="container footer-grid"> <div> <p class="footer-title">Empty Catch</p> <p class="footer-copy">A collection of tools, optimizations, and arguments.</p> </div> <div class="footer-links"> <a href="https://github.com/yourusername" rel="noreferrer" target="_blank"> GitHub </a> <a href="/rss.xml">RSS</a> </div> </div> </footer> </div> </body></html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet"><title>Empty Catch</title><meta name="description" content="A collection of tools, optimizations, and arguments."><link rel="canonical" href="https://emptycatch.com/"><meta property="og:title" content="Empty Catch"><meta property="og:description" content="A collection of tools, optimizations, and arguments."><meta property="og:type" content="website"><meta property="og:url" content="https://emptycatch.com/"><meta property="og:site_name" content="Empty Catch"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="application/rss+xml" title="Empty Catch" href="/rss.xml"><link rel="stylesheet" href="/_astro/about.BpFPM3ZA.css"></head> <body> <div class="site-shell home-shell"> <header class="site-header is-home"> <div class="container shell-row"> <a class="brand" href="/"> <span class="avatar-badge" aria-hidden="true">B</span> <span class="brand-copy"> <span class="brand-name">Bryan</span> <span class="brand-tagline">Empty Catch</span> </span> </a> <div class="header-links">  <a class="github-link" href="https://github.com/yourusername" rel="noreferrer" target="_blank"> GitHub </a> </div> </div> </header> <main class="site-main home-main">  <div class="container home-stack"> <div class="home-hero-area"> <section class="home-code-wrap" aria-label="Homepage intro"> <pre class="home-code-block is-typing" style="--hero-line-count: 4;"><code id="typed-hero" data-comments="[&#34;Some comment here.&#34;,&#34;I swear there's a reason.&#34;,&#34;This seemed like a good idea at the time.&#34;,&#34;We'll clean this up later.&#34;,&#34;Don't mind this.&#34;,&#34;This is temporary, I promise.&#34;,&#34;Ignore this for now.&#34;,&#34;Don't think too much about this&#34;,&#34;raise NotImplementedError()&#34;,&#34;Couldn't possibly happen, right?&#34;]"></code></pre> <noscript> <pre class="home-code-block" style="--hero-line-count: 4;"><code><span class="hl-keyword">catch</span><span class="hl-punct">(</span><span class="hl-variable">e</span><span class="hl-punct">) {</span>
+  <span class="hl-comment">// Some comment here.</span>
+<span class="hl-punct">}</span></code></pre> </noscript> </section> <script>
+  const block = document.querySelector("#typed-hero");
+
+  if (block) {
+    const comments = JSON.parse(block.dataset.comments ?? "[]");
+    const selectedComment =
+      comments[Math.floor(Math.random() * comments.length)] ?? "Some comment here.";
+    const wrapCommentLines = (comment, maxLength = 30) => {
+      const words = comment.trim().split(/\s+/).filter(Boolean);
+      const lines = [];
+      let currentLine = "";
+
+      for (const word of words) {
+        const candidate = currentLine ? `${currentLine} ${word}` : word;
+
+        if (candidate.length <= maxLength || !currentLine) {
+          currentLine = candidate;
+          continue;
+        }
+
+        lines.push(currentLine);
+        currentLine = word;
+      }
+
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+
+      return lines.length > 0 ? lines : ["Some comment here."];
+    };
+    const wrappedCommentLines = wrapCommentLines(selectedComment);
+    const lines = [
+      [
+        { className: "hl-keyword", text: "catch" },
+        { className: "hl-punct", text: "(" },
+        { className: "hl-variable", text: "e" },
+        { className: "hl-punct", text: ") {" }
+      ],
+      ...wrappedCommentLines.map((line) => [
+        { className: "", text: "  " },
+        { className: "hl-comment", text: `// ${line}` }
+      ]),
+      [{ className: "hl-punct", text: "}" }]
+    ];
+    const flatSegments = [];
+    const cursor = document.createElement("span");
+    cursor.className = "typing-cursor";
+    cursor.textContent = "█";
+
+    lines.forEach((line) => {
+      const lineElement = document.createElement("span");
+      lineElement.className = "home-code-line";
+
+      line.forEach((segment) => {
+        const segmentElement = document.createElement("span");
+        segmentElement.className = segment.className
+          ? `type-segment ${segment.className}`
+          : "type-segment";
+        segmentElement.dataset.text = segment.text;
+        lineElement.appendChild(segmentElement);
+        flatSegments.push(segmentElement);
+      });
+
+      block.appendChild(lineElement);
+    });
+
+    const moveCursor = (segment, count) => {
+      segment.textContent = (segment.dataset.text ?? "").slice(0, count);
+      segment.appendChild(cursor);
+    };
+
+    let segmentIndex = 0;
+    let charIndex = 0;
+
+    const getTypingDelay = (currentChar, nextChar, currentSegmentIndex, currentCharIndex) => {
+      let delay =
+        28 +
+        ((currentSegmentIndex + 1) * 11 + currentCharIndex * 17 + currentChar.charCodeAt(0)) %
+          24;
+
+      if (currentChar === " ") {
+        delay -= 6;
+      }
+
+      if (currentChar === "/") {
+        delay += 24;
+      }
+
+      if ("(),{}".includes(currentChar)) {
+        delay += 48;
+      }
+
+      if (".;:".includes(currentChar)) {
+        delay += 72;
+      }
+
+      if (nextChar === "/" || nextChar === "}") {
+        delay += 36;
+      }
+
+      if ((currentSegmentIndex + currentCharIndex) % 6 === 0) {
+        delay += 18;
+      }
+
+      return delay;
+    };
+
+    const getSegmentPause = (text, nextSegment) => {
+      let delay = 64;
+
+      if (text.endsWith("{")) {
+        delay += 90;
+      }
+
+      if (text.includes("//")) {
+        delay += 54;
+      }
+
+      if (nextSegment?.dataset.text?.startsWith("}")) {
+        delay += 42;
+      }
+
+      return delay;
+    };
+
+    const typeNext = () => {
+      const segment = flatSegments[segmentIndex];
+      const text = segment?.dataset.text ?? "";
+
+      if (!segment) {
+        cursor.remove();
+        block.parentElement?.classList.remove("is-typing");
+        return;
+      }
+
+      charIndex += 1;
+      moveCursor(segment, charIndex);
+
+      if (charIndex < text.length) {
+        const currentChar = text.charAt(charIndex - 1);
+        const nextChar = text.charAt(charIndex);
+        window.setTimeout(
+          typeNext,
+          getTypingDelay(currentChar, nextChar, segmentIndex, charIndex)
+        );
+        return;
+      }
+
+      segment.textContent = text;
+      segment.appendChild(cursor);
+      segmentIndex += 1;
+      charIndex = 0;
+
+      if (segmentIndex < flatSegments.length) {
+        window.setTimeout(
+          typeNext,
+          getSegmentPause(text, flatSegments[segmentIndex])
+        );
+        return;
+      }
+
+      cursor.remove();
+      block.parentElement?.classList.remove("is-typing");
+    };
+
+    typeNext();
+  }
+</script> </div> <section class="home-recent-links" aria-label="Recent posts"> <p class="home-recent-label">Recent posts</p> <div class="home-recent-list">  </div> </section> </div>  </main>  </div> </body></html>

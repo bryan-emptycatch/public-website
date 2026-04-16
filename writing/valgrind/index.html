@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet"><title>Valgrind | Empty Catch</title><meta name="description" content="A practical walkthrough of Valgrind's most useful tools — Memcheck, Callgrind, and when to reach for each one."><link rel="canonical" href="https://emptycatch.com/writing/valgrind/"><meta property="og:title" content="Valgrind | Empty Catch"><meta property="og:description" content="A practical walkthrough of Valgrind's most useful tools — Memcheck, Callgrind, and when to reach for each one."><meta property="og:type" content="website"><meta property="og:url" content="https://emptycatch.com/writing/valgrind/"><meta property="og:site_name" content="Empty Catch"><meta name="twitter:card" content="summary_large_image"><link rel="alternate" type="application/rss+xml" title="Empty Catch" href="/rss.xml"><link rel="stylesheet" href="/_astro/about.BpFPM3ZA.css"></head> <body> <div class="site-shell"> <header class="site-header"> <div class="container shell-row"> <a class="brand" href="/"> <span class="avatar-badge" aria-hidden="true">B</span> <span class="brand-copy"> <span class="brand-name">Bryan</span> <span class="brand-tagline">Empty Catch</span> </span> </a> <div class="header-links"> <nav class="site-nav" aria-label="Primary"> <a href="/">Home</a> <a class="active" href="/writing/">Writing</a><a href="/about/">About</a> </nav> <a class="github-link" href="https://github.com/yourusername" rel="noreferrer" target="_blank"> GitHub </a> </div> </div> </header> <main class="site-main">  <div class="container page-stack"> <article class="article-shell"> <header class="article-header"> <p class="eyebrow">Writing</p> <h1>Valgrind</h1> <div class="article-meta"> <time datetime="2026-04-15T23:00:00.000Z">Apr 15, 2026</time>  </div> <p class="article-summary">A practical walkthrough of Valgrind&#39;s most useful tools — Memcheck, Callgrind, and when to reach for each one.</p> </header> <div class="prose-card article-prose"> <p>Valgrind is a framework that runs your program on a synthetic CPU and lets different analysis tools observe every instruction. It’s not one tool — the <code>--tool=</code> flag picks which analysis runs.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#9ECBFF"> ./program</span><span style="color:#6A737D">           # runs memcheck by default</span></span>
+<span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> --tool=callgrind</span><span style="color:#9ECBFF"> ./program</span></span>
+<span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> --tool=massif</span><span style="color:#9ECBFF"> ./program</span></span></code></pre>
+<p>The main ones worth knowing:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Tool</th><th>What it does</th></tr></thead><tbody><tr><td><code>memcheck</code></td><td>Finds memory errors and leaks</td></tr><tr><td><code>callgrind</code></td><td>Counts instructions and records the call graph</td></tr><tr><td><code>cachegrind</code></td><td>Simulates cache behaviour</td></tr><tr><td><code>massif</code></td><td>Tracks heap allocations over time</td></tr><tr><td><code>helgrind</code> / <code>drd</code></td><td>Finds data races in threaded programs</td></tr></tbody></table>
+<p>The tradeoff for all of them is speed — your program runs 5–100× slower because Valgrind is simulating a CPU rather than running on one. The upside is that results are deterministic and need no hardware counters.</p>
+<hr>
+<h2 id="build-flags">Build flags</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">gcc</span><span style="color:#79B8FF"> -g</span><span style="color:#79B8FF"> -O0</span><span style="color:#79B8FF"> -o</span><span style="color:#9ECBFF"> demo</span><span style="color:#9ECBFF"> src/demo.c</span><span style="color:#6A737D">   # callgrind</span></span>
+<span class="line"><span style="color:#B392F0">gcc</span><span style="color:#79B8FF"> -g</span><span style="color:#79B8FF"> -O1</span><span style="color:#79B8FF"> -o</span><span style="color:#9ECBFF"> demo</span><span style="color:#9ECBFF"> src/demo.c</span><span style="color:#6A737D">   # memcheck</span></span></code></pre>
+<p><code>-g</code> is the important one. Without it you get addresses instead of filenames and line numbers. <code>-O0</code> matters mainly for callgrind — at <code>-O2</code> the compiler inlines small functions and merges loops, so the call graph stops reflecting what you actually wrote. For memcheck, <code>-O1</code> or <code>-O2</code> is fine since Valgrind can still track memory regardless of optimisation level.</p>
+<hr>
+<h2 id="memcheck">Memcheck</h2>
+<p>Catches the bugs that are hard to reproduce:</p>
+<ul>
+<li>reads past the end of a heap allocation</li>
+<li>reads from memory that was freed</li>
+<li>reads of uninitialised values</li>
+<li>memory leaks</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --tool=memcheck</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --leak-check=full</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --show-leak-kinds=all</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --track-origins=yes</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">  ./program</span></span></code></pre>
+<p><code>--leak-check=full</code> gives you a stack trace for every leak instead of just a count. <code>--track-origins=yes</code> tells you where an uninitialised value came from — it roughly doubles the slowdown but saves a lot of guessing.</p>
+<p>A typical error looks like this:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>==4821== Invalid read of size 4</span></span>
+<span class="line"><span>==4821==    at 0x10919E: process (demo.c:42)</span></span>
+<span class="line"><span>==4821==    by 0x109312: main (demo.c:71)</span></span>
+<span class="line"><span>==4821==  Address 0x52040a0 is 0 bytes after a block of size 40 alloc'd</span></span>
+<span class="line"><span>==4821==    at 0x484DA83: malloc (vg_replace_malloc.c:431)</span></span>
+<span class="line"><span>==4821==    by 0x1090F2: main (demo.c:65)</span></span></code></pre>
+<p>The <code>==PID==</code> prefix appears on every line — useful when tracing child processes. The first stack trace is where the bad access happened. The second is where the memory was originally allocated. With those two together you usually know what went wrong without touching a debugger.</p>
+<p>Leak output at the end of a run:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>==4821== LEAK SUMMARY:</span></span>
+<span class="line"><span>==4821==    definitely lost: 40 bytes in 1 blocks</span></span>
+<span class="line"><span>==4821==    indirectly lost: 0 bytes in 0 blocks</span></span>
+<span class="line"><span>==4821==      possibly lost: 0 bytes in 0 blocks</span></span>
+<span class="line"><span>==4821==    still reachable: 0 bytes in 0 blocks</span></span></code></pre>
+<p>“Definitely lost” is a real leak — pointer gone, memory never freed. “Still reachable” means a live pointer exists at exit; often fine for global allocations that the OS reclaims. Focus on “definitely lost” first.</p>
+<p>For CI, <code>--error-exitcode=1</code> makes Valgrind exit non-zero when it finds anything:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> --tool=memcheck</span><span style="color:#79B8FF"> --leak-check=full</span><span style="color:#79B8FF"> --error-exitcode=1</span><span style="color:#9ECBFF"> ./program</span></span></code></pre>
+<hr>
+<h2 id="callgrind">Callgrind</h2>
+<p>Callgrind counts every instruction the CPU executes, per function, and records who called whom. No sampling — you get exact counts.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --tool=callgrind</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --callgrind-out-file=callgrind.out</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --dump-instr=yes</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">  --collect-jumps=yes</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">  ./program</span></span></code></pre>
+<p><code>--dump-instr=yes</code> records at instruction granularity rather than just source lines. <code>--collect-jumps=yes</code> adds branch taken/not-taken counts. The output goes to <code>callgrind.out</code>.</p>
+<p>During the run you see:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>==8559== Callgrind, a call-graph generating cache profiler</span></span>
+<span class="line"><span>==8559== Command: ./demo data</span></span>
+<span class="line"><span>==8559== </span></span>
+<span class="line"><span>==8559== I   refs:      194,508,428</span></span></code></pre>
+<p>“I refs” is the total instruction count. That number is what callgrind distributes across your functions.</p>
+<h3 id="reading-the-results">Reading the results</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">callgrind_annotate</span><span style="color:#9ECBFF"> callgrind.out</span></span></code></pre>
+<p>The per-function table, sorted by instruction count:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Ir                   file:function</span></span>
+<span class="line"><span>──────────────────────────────────────────────────────────────────</span></span>
+<span class="line"><span>57,434,686 (29.53%)  strtod_l.c:____strtod_l_internal   [libc]</span></span>
+<span class="line"><span>20,140,768 (10.35%)  strtod_l.c:str_to_mpn              [libc]</span></span>
+<span class="line"><span>11,300,000 ( 5.81%)  strtok_r.c:strtok_r                [libc]</span></span>
+<span class="line"><span>10,442,480 ( 5.37%)  strcmp-avx2.S:__strcmp_avx2         [libc]</span></span>
+<span class="line"><span>10,248,782 ( 5.27%)  src/demo.c:find_or_create</span></span>
+<span class="line"><span> 8,608,707 ( 4.43%)  strcspn-sse4.c:__strcspn_sse42      [libc]</span></span>
+<span class="line"><span> 7,650,898 ( 3.93%)  src/demo.c:accumulate</span></span>
+<span class="line"><span> 4,450,000 ( 2.29%)  src/demo.c:parse_line</span></span>
+<span class="line"><span> 3,750,000 ( 1.93%)  src/demo.c:parse_score</span></span>
+<span class="line"><span> 2,800,535 ( 1.44%)  iofgets.c:fgets                    [libc]</span></span>
+<span class="line"><span>   750,230 ( 0.39%)  src/demo.c:read_file</span></span></code></pre>
+<p>This run was a CSV parser — 50,000 rows, three <code>strtod</code> calls per row. The results make the problem obvious: <code>strtod</code> and its internals take <strong>~50% of all instructions</strong>. The next biggest thing in our own code is <code>find_or_create</code> at 5.3%, which does a linear strcmp scan through 20 categories on every row.</p>
+<p>The <code>Ir</code> column is <em>exclusive</em> cost — instructions executed inside that function, not counting callees. That’s why <code>parse_score</code> shows only 1.93% even though it calls <code>strtod</code> which accounts for 29.53%; the callee cost is attributed to <code>strtod</code> itself.</p>
+<h3 id="source-annotation">Source annotation</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">callgrind_annotate</span><span style="color:#79B8FF"> --auto=yes</span><span style="color:#9ECBFF"> callgrind.out</span></span></code></pre>
+<p>This annotates every line of your source with its instruction count:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span> 1,200,000 ( 0.62%)  static double parse_score(const char *field) {</span></span>
+<span class="line"><span> 1,050,000 ( 0.54%)      double v = strtod(field, &#x26;end);</span></span>
+<span class="line"><span>108,658,465 (55.86%)  => strtod (150,000x)</span></span>
+<span class="line"><span>   750,000 ( 0.39%)      return (end == field) ? 0.0 : v;</span></span></code></pre>
+<p>The <code>=></code> line shows the callee’s cost inline. That one <code>strtod</code> call accounts for 56% of the entire program. Hard to miss.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>   250,000 ( 0.13%)  static int parse_line(char *buf) {</span></span>
+<span class="line"><span>   400,000 ( 0.21%)      char *id  = strtok(buf,  ",");</span></span>
+<span class="line"><span> 5,500,000 ( 2.83%)  => strtok_r (50,000x)</span></span>
+<span class="line"><span>   350,000 ( 0.18%)      char *nm  = strtok(NULL, ",");</span></span>
+<span class="line"><span> 6,483,552 ( 3.33%)  => strtok_r (50,000x)</span></span>
+<span class="line"><span>                     ...</span></span>
+<span class="line"><span>   200,000 ( 0.10%)      Stats *st = find_or_create(cat);</span></span>
+<span class="line"><span>21,736,060 (11.17%)  => find_or_create (50,000x)</span></span></code></pre>
+<p>Six <code>strtok</code> calls per row, each attributing several million instructions to libc’s <code>strtok_r</code>. And <code>find_or_create</code> — a 20-element linear strcmp loop called 50,000 times — costs more instructions than anything else in our code.</p>
+<h3 id="gui">GUI</h3>
+<p><code>callgrind.out</code> opens in qcachegrind (macOS: <code>brew install qcachegrind</code>, Ubuntu: <code>apt install kcachegrind</code>). The GUI adds an interactive call graph, click-through to source, and a sortable flat profile. Worth installing if you’re spending any real time on a profile.</p>
+<hr>
+<h2 id="cachegrind">Cachegrind</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> --tool=cachegrind</span><span style="color:#9ECBFF"> ./program</span></span>
+<span class="line"><span style="color:#B392F0">cg_annotate</span><span style="color:#9ECBFF"> cachegrind.out.</span><span style="color:#F97583">&#x3C;</span><span style="color:#9ECBFF">pi</span><span style="color:#E1E4E8">d</span><span style="color:#F97583">></span></span></code></pre>
+<p>Simulates the L1 instruction cache, L1 data cache, and last-level cache. Useful when you think cache misses are the problem rather than raw instruction count. The output metrics:</p>
+<ul>
+<li><code>Ir</code> — instruction reads</li>
+<li><code>D1mr</code> / <code>DLmr</code> — L1 and LL data read misses</li>
+<li><code>D1mw</code> / <code>DLmw</code> — L1 and LL data write misses</li>
+</ul>
+<p>Most of the time callgrind is the better first tool. Cachegrind becomes relevant once you know which loop is hot and want to understand whether it’s bound by memory access patterns.</p>
+<hr>
+<h2 id="massif">Massif</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> --tool=massif</span><span style="color:#79B8FF"> --massif-out-file=massif.out</span><span style="color:#9ECBFF"> ./program</span></span>
+<span class="line"><span style="color:#B392F0">ms_print</span><span style="color:#9ECBFF"> massif.out</span></span></code></pre>
+<p>Tracks heap allocations over the lifetime of the program and produces a graph showing peak usage and which call sites are responsible. Useful for “why is this process using 4 GB” situations.</p>
+<hr>
+<h2 id="suppressions">Suppressions</h2>
+<p>Libraries you don’t control sometimes trigger memcheck errors. Rather than stare at them forever, suppress them:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> --gen-suppressions=all</span><span style="color:#9ECBFF"> ./program</span><span style="color:#F97583"> 2></span><span style="color:#9ECBFF">raw.supp</span></span></code></pre>
+<p>Edit <code>raw.supp</code> to keep only the entries you want, then pass it with <code>--suppressions=my.supp</code>. Many distros also ship standard suppression files at <code>/usr/lib/valgrind/*.supp</code>.</p>
+<hr>
+<h2 id="practical-patterns">Practical patterns</h2>
+<p><strong>CI memory check:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> --tool=memcheck</span><span style="color:#79B8FF"> --leak-check=full</span><span style="color:#79B8FF"> --error-exitcode=1</span><span style="color:#9ECBFF"> ./tests</span></span></code></pre>
+<p><strong>Find the hot function:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> --tool=callgrind</span><span style="color:#79B8FF"> --callgrind-out-file=callgrind.out</span><span style="color:#9ECBFF"> ./program</span></span>
+<span class="line"><span style="color:#B392F0">callgrind_annotate</span><span style="color:#79B8FF"> --threshold=80</span><span style="color:#9ECBFF"> callgrind.out</span><span style="color:#6A737D">   # top 80% only</span></span></code></pre>
+<p><strong>Compare before and after a change:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">callgrind_annotate</span><span style="color:#9ECBFF"> before.out</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> grep</span><span style="color:#9ECBFF"> "PROGRAM TOTALS"</span></span>
+<span class="line"><span style="color:#B392F0">callgrind_annotate</span><span style="color:#9ECBFF"> after.out</span><span style="color:#F97583">  |</span><span style="color:#B392F0"> grep</span><span style="color:#9ECBFF"> "PROGRAM TOTALS"</span></span></code></pre>
+<p><strong>Write one log file per child process:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> --log-file=valgrind-%p.log</span><span style="color:#79B8FF"> --trace-children=yes</span><span style="color:#9ECBFF"> ./program</span></span></code></pre>
+<p><strong>Step through a Valgrind run in GDB:</strong></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sh"><code><span class="line"><span style="color:#B392F0">valgrind</span><span style="color:#79B8FF"> --tool=memcheck</span><span style="color:#79B8FF"> --vgdb=yes</span><span style="color:#79B8FF"> --vgdb-error=0</span><span style="color:#9ECBFF"> ./program</span></span>
+<span class="line"><span style="color:#6A737D"># in another terminal:</span></span>
+<span class="line"><span style="color:#B392F0">gdb</span><span style="color:#9ECBFF"> ./program</span></span>
+<span class="line"><span style="color:#E1E4E8">(</span><span style="color:#B392F0">gdb</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">target</span><span style="color:#9ECBFF"> remote</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> vgdb</span></span></code></pre>
+<hr>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://valgrind.org/docs/manual/manual.html">Valgrind User Manual</a></li>
+<li><a href="https://valgrind.org/docs/manual/mc-manual.html">Memcheck Manual</a></li>
+<li><a href="https://valgrind.org/docs/manual/cl-manual.html">Callgrind Manual</a></li>
+<li><a href="https://kcachegrind.github.io">qcachegrind</a></li>
+</ul> </div> </article> </div>  </main> <footer class="site-footer"> <div class="container footer-grid"> <div> <p class="footer-title">Empty Catch</p> <p class="footer-copy">A collection of tools, optimizations, and arguments.</p> </div> <div class="footer-links"> <a href="https://github.com/yourusername" rel="noreferrer" target="_blank"> GitHub </a> <a href="/rss.xml">RSS</a> </div> </div> </footer> </div> </body></html>

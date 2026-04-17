@@ -1,0 +1,70 @@
+<svg viewBox="0 0 870 470" xmlns="http://www.w3.org/2000/svg"
+     font-family="DM Sans, system-ui, sans-serif">
+
+  <!-- Apex (300,30), base (70,440)-(530,440), half-width 230, height 410      -->
+  <!-- 5 equal layers (82px). y-cuts: 30,112,194,276,358,440                   -->
+  <!-- hw(y) = 230*(y-30)/410                                                  -->
+  <!-- y=112: hw=46 → 254–346 | y=194: hw=92 → 208–392                        -->
+  <!-- y=276: hw=138 → 162–438 | y=358: hw=184 → 116–484                      -->
+
+  <!-- Class level (bottom, orange) -->
+  <polygon points="70,440 530,440 484,358 116,358"
+           fill="rgba(243,143,90,0.18)" stroke="rgba(243,143,90,0.45)" stroke-width="1.5"/>
+
+  <!-- Unit level -->
+  <polygon points="116,358 484,358 438,276 162,276"
+           fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.16)" stroke-width="1.5"/>
+
+  <!-- Integration Tests -->
+  <polygon points="162,276 438,276 392,194 208,194"
+           fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.16)" stroke-width="1.5"/>
+
+  <!-- System Tests -->
+  <polygon points="208,194 392,194 346,112 254,112"
+           fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.16)" stroke-width="1.5"/>
+
+  <!-- End-to-End -->
+  <polygon points="254,112 346,112 300,30"
+           fill="rgba(255,255,255,0.11)" stroke="rgba(255,255,255,0.16)" stroke-width="1.5"/>
+
+  <!-- Inline labels -->
+  <text x="300" y="404" text-anchor="middle" fill="#f38f5a" font-size="13" font-weight="600">Class Level</text>
+  <text x="300" y="322" text-anchor="middle" fill="#f4f4f4" font-size="13" font-weight="500">Unit Level</text>
+  <text x="300" y="240" text-anchor="middle" fill="#f4f4f4" font-size="13" font-weight="500">Integration Tests</text>
+  <text x="300" y="158" text-anchor="middle" fill="#f4f4f4" font-size="12" font-weight="500">System Tests</text>
+  <!-- End-to-End: placed lower in narrow band -->
+  <text x="300" y="100" text-anchor="middle" fill="#f4f4f4" font-size="10" font-weight="500">End-to-End</text>
+
+  <!-- Callout connectors -->
+
+  <!-- E2E: mid_y=71, right_x=323 -->
+  <circle cx="323" cy="71" r="5" fill="#f38f5a"/>
+  <line x1="328" y1="71" x2="555" y2="71" stroke="#f38f5a" stroke-width="2"/>
+  <text x="562" y="67" fill="#f4f4f4" font-size="11" font-weight="600">Full system + UI tests</text>
+  <text x="562" y="81" fill="#aaaaaa" font-size="10">Playwright, Selenium, Cypress</text>
+
+  <!-- System: mid_y=153, right_x=369 -->
+  <circle cx="369" cy="153" r="5" fill="#f38f5a"/>
+  <line x1="374" y1="153" x2="555" y2="153" stroke="#f38f5a" stroke-width="2"/>
+  <text x="562" y="149" fill="#f4f4f4" font-size="11" font-weight="600">Docker containers + API calls</text>
+  <text x="562" y="163" fill="#aaaaaa" font-size="10">Spin up services, test via HTTP</text>
+
+  <!-- Integration: mid_y=235, right_x=415 -->
+  <circle cx="415" cy="235" r="5" fill="#f38f5a"/>
+  <line x1="420" y1="235" x2="555" y2="235" stroke="#f38f5a" stroke-width="2"/>
+  <text x="562" y="231" fill="#f4f4f4" font-size="11" font-weight="600">Test harness, real dependencies</text>
+  <text x="562" y="245" fill="#aaaaaa" font-size="10">Multiple classes working together</text>
+
+  <!-- Unit level: mid_y=317, right_x=461 -->
+  <circle cx="461" cy="317" r="5" fill="#f38f5a"/>
+  <line x1="466" y1="317" x2="555" y2="317" stroke="#f38f5a" stroke-width="2"/>
+  <text x="562" y="313" fill="#f4f4f4" font-size="11" font-weight="600">Module-level, real dependencies</text>
+  <text x="562" y="327" fill="#aaaaaa" font-size="10">Package or module boundary</text>
+
+  <!-- Class level: mid_y=399, right_x=507 -->
+  <circle cx="507" cy="399" r="5" fill="#f38f5a"/>
+  <line x1="512" y1="399" x2="555" y2="399" stroke="#f38f5a" stroke-width="2"/>
+  <text x="562" y="395" fill="#f38f5a" font-size="11" font-weight="600">Class-level, mocked dependencies</text>
+  <text x="562" y="409" fill="#aaaaaa" font-size="10">JUnit, NUnit, pytest, etc.</text>
+
+</svg>

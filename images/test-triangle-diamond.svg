@@ -1,0 +1,59 @@
+<svg viewBox="0 0 680 510" xmlns="http://www.w3.org/2000/svg"
+     font-family="DM Sans, system-ui, sans-serif">
+
+  <!-- Diamond centered at x=240, y=80–460                                     -->
+  <!-- Girdle (widest) at y=175, hw=190 → left=50, right=430                  -->
+  <!-- Upper: hw(y)=190*(y-80)/95 (apex to girdle)                            -->
+  <!-- Lower: hw(y)=190*(460-y)/285 (girdle to bottom)                        -->
+  <!-- Lower y cuts: 270 (hw=127→113,367), 365 (hw=63→177,303)                -->
+
+  <!-- Unit Tests (top triangle, apex→girdle) -->
+  <polygon points="240,80 50,175 430,175"
+           fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+
+  <!-- Module / Package Tests (accent, girdle→y=270) -->
+  <polygon points="50,175 430,175 367,270 113,270"
+           fill="rgba(243,143,90,0.20)" stroke="rgba(243,143,90,0.50)" stroke-width="1.5"/>
+
+  <!-- Integration Tests (y=270→y=365) -->
+  <polygon points="113,270 367,270 303,365 177,365"
+           fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+
+  <!-- End-to-End (bottom triangle, y=365→bottom) -->
+  <polygon points="177,365 303,365 240,460"
+           fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+
+  <!-- Inline labels -->
+  <text x="240" y="132" text-anchor="middle" fill="#f4f4f4" font-size="12" font-weight="500">Unit Tests</text>
+  <text x="240" y="220" text-anchor="middle" fill="#f38f5a" font-size="13" font-weight="600">Module Tests</text>
+  <text x="240" y="237" text-anchor="middle" fill="#f38f5a" font-size="10">package level</text>
+  <text x="240" y="317" text-anchor="middle" fill="#f4f4f4" font-size="12" font-weight="500">Integration Tests</text>
+  <text x="240" y="416" text-anchor="middle" fill="#f4f4f4" font-size="10" font-weight="500">End-to-End</text>
+
+  <!-- Callout connectors -->
+
+  <!-- Unit Tests: mid_y=128, hw=190*48/95=96 → right_x=336 -->
+  <circle cx="336" cy="128" r="5" fill="#f38f5a"/>
+  <line x1="341" y1="128" x2="447" y2="128" stroke="#f38f5a" stroke-width="2"/>
+  <text x="455" y="124" fill="#f4f4f4" font-size="11" font-weight="600">Class-level, mocked dependencies</text>
+  <text x="455" y="138" fill="#aaaaaa" font-size="10">JUnit, NUnit, pytest</text>
+
+  <!-- Module Tests: mid_y=223, hw=190*237/285=158 → right_x=398 -->
+  <circle cx="398" cy="223" r="5" fill="#f38f5a"/>
+  <line x1="403" y1="223" x2="447" y2="223" stroke="#f38f5a" stroke-width="2"/>
+  <text x="455" y="219" fill="#f38f5a" font-size="11" font-weight="600">Package-level, real dependencies</text>
+  <text x="455" y="233" fill="#aaaaaa" font-size="10">Multiple classes, one module</text>
+
+  <!-- Integration Tests: mid_y=318, hw=190*142/285=95 → right_x=335 -->
+  <circle cx="335" cy="318" r="5" fill="#f38f5a"/>
+  <line x1="340" y1="318" x2="447" y2="318" stroke="#f38f5a" stroke-width="2"/>
+  <text x="455" y="314" fill="#f4f4f4" font-size="11" font-weight="600">Cross-service, test harness</text>
+  <text x="455" y="328" fill="#aaaaaa" font-size="10">Services talking to each other</text>
+
+  <!-- End-to-End: mid_y=413, hw=190*47/285=31 → right_x=271 -->
+  <circle cx="271" cy="413" r="5" fill="#f38f5a"/>
+  <line x1="276" y1="413" x2="447" y2="413" stroke="#f38f5a" stroke-width="2"/>
+  <text x="455" y="409" fill="#f4f4f4" font-size="11" font-weight="600">Full system + UI tests</text>
+  <text x="455" y="423" fill="#aaaaaa" font-size="10">Playwright, Selenium, Cypress</text>
+
+</svg>

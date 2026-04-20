@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" fill="none">
+  <g stroke="#c8d0e0" fill="none">
+
+    <!-- === NODES (120×34, rx=4) === -->
+
+    <!-- CDN / Edge -->
+    <rect x="20" y="44" width="120" height="34" rx="4" stroke-width="1"/>
+    <text x="80" y="66" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">CDN / Edge</text>
+
+    <!-- API Gateway (slightly bolder — entry point) -->
+    <rect x="210" y="44" width="120" height="34" rx="4" stroke-width="1.4"/>
+    <text x="270" y="66" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">API Gateway</text>
+
+    <!-- Auth Service -->
+    <rect x="430" y="44" width="120" height="34" rx="4" stroke-width="1"/>
+    <text x="490" y="66" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">Auth Service</text>
+
+    <!-- Rate Limiter (dashed — middleware/sidecar) -->
+    <rect x="430" y="144" width="120" height="34" rx="4" stroke-width="1" stroke-dasharray="4 2"/>
+    <text x="490" y="166" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">Rate Limiter</text>
+
+    <!-- Config Service -->
+    <rect x="660" y="44" width="120" height="34" rx="4" stroke-width="1"/>
+    <text x="720" y="66" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">Config Service</text>
+
+    <!-- Observability (dashed — cross-cutting) -->
+    <rect x="900" y="44" width="120" height="34" rx="4" stroke-width="1" stroke-dasharray="4 2"/>
+    <text x="960" y="66" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">Observability</text>
+
+    <!-- User Service -->
+    <rect x="120" y="272" width="120" height="34" rx="4" stroke-width="1"/>
+    <text x="180" y="294" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">User Service</text>
+
+    <!-- Session Cache -->
+    <rect x="350" y="272" width="120" height="34" rx="4" stroke-width="1"/>
+    <text x="410" y="294" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">Session Cache</text>
+
+    <!-- Event Bus (slightly bolder — central broker) -->
+    <rect x="580" y="272" width="120" height="34" rx="4" stroke-width="1.4"/>
+    <text x="640" y="294" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">Event Bus</text>
+
+    <!-- Worker Pool -->
+    <rect x="810" y="272" width="120" height="34" rx="4" stroke-width="1"/>
+    <text x="870" y="294" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">Worker Pool</text>
+
+    <!-- Notif. Service -->
+    <rect x="1040" y="272" width="130" height="34" rx="4" stroke-width="1"/>
+    <text x="1105" y="294" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">Notif. Service</text>
+
+    <!-- DB Primary (heavier border — source of truth) -->
+    <rect x="200" y="452" width="120" height="34" rx="4" stroke-width="1.6"/>
+    <text x="260" y="474" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">DB Primary</text>
+
+    <!-- DB Replica -->
+    <rect x="430" y="452" width="120" height="34" rx="4" stroke-width="1"/>
+    <text x="490" y="474" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">DB Replica</text>
+
+    <!-- Object Store -->
+    <rect x="680" y="452" width="120" height="34" rx="4" stroke-width="1"/>
+    <text x="740" y="474" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="11" fill="#c8d0e0">Object Store</text>
+
+    <!-- === EDGES === -->
+
+    <!-- CDN → API Gateway -->
+    <line x1="140" y1="61" x2="208" y2="61" stroke-width="1"/>
+
+    <!-- API Gateway → Auth Service -->
+    <line x1="330" y1="61" x2="428" y2="61" stroke-width="1"/>
+
+    <!-- Auth Service ↓ Rate Limiter -->
+    <line x1="490" y1="78" x2="490" y2="142" stroke-width="1"/>
+
+    <!-- API Gateway ↓ User Service (curved) -->
+    <path d="M270,78 C270,185 180,205 180,270" stroke-width="1"/>
+
+    <!-- Rate Limiter → Session Cache (curved) -->
+    <path d="M490,178 C490,232 410,242 410,270" stroke-width="1"/>
+
+    <!-- User Service → Session Cache -->
+    <line x1="240" y1="289" x2="348" y2="289" stroke-width="1"/>
+
+    <!-- Session Cache → Event Bus -->
+    <line x1="470" y1="289" x2="578" y2="289" stroke-width="1"/>
+
+    <!-- Event Bus → Worker Pool -->
+    <line x1="700" y1="289" x2="808" y2="289" stroke-width="1"/>
+
+    <!-- Worker Pool → Notif. Service -->
+    <line x1="930" y1="289" x2="1038" y2="289" stroke-width="1"/>
+
+    <!-- Config Service ↓ Event Bus (curved) -->
+    <path d="M720,78 C720,185 640,205 640,270" stroke-width="1" stroke-dasharray="5 3"/>
+
+    <!-- Observability dashed ↓ Worker Pool -->
+    <path d="M960,78 C960,185 870,205 870,270" stroke-width="1" stroke-dasharray="5 3"/>
+
+    <!-- User Service ↓ DB Primary -->
+    <path d="M200,306 C200,382 260,402 260,450" stroke-width="1"/>
+
+    <!-- DB Primary → DB Replica -->
+    <line x1="320" y1="469" x2="428" y2="469" stroke-width="1"/>
+
+    <!-- Worker Pool ↓ Object Store (curved) -->
+    <path d="M870,306 C870,402 740,422 740,450" stroke-width="1"/>
+
+    <!-- === CALLOUTS === -->
+
+    <!-- Callout 1: CDN → Gateway — why does everything go through here -->
+    <rect x="104" y="16" width="188" height="20" rx="3" stroke-width="0.7" stroke-dasharray="1.5 2"/>
+    <line x1="160" y1="36" x2="160" y2="50" stroke-width="0.7" stroke-dasharray="2 2"/>
+    <text x="198" y="30" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="9" font-weight="100" fill="#c8d0e0" opacity="0.5">why does everything funnel through here</text>
+
+    <!-- Callout 2: API Gateway → Auth — for every single request? -->
+    <rect x="318" y="16" width="192" height="20" rx="3" stroke-width="0.7" stroke-dasharray="1.5 2"/>
+    <line x1="380" y1="36" x2="380" y2="52" stroke-width="0.7" stroke-dasharray="2 2"/>
+    <text x="414" y="30" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="9" font-weight="100" fill="#c8d0e0" opacity="0.5">yes, we verify the JWT on every request</text>
+
+    <!-- Callout 3: Auth → Rate Limiter — shouldn't this be earlier? -->
+    <rect x="520" y="96" width="186" height="20" rx="3" stroke-width="0.7" stroke-dasharray="1.5 2"/>
+    <line x1="520" y1="106" x2="496" y2="120" stroke-width="0.7" stroke-dasharray="2 2"/>
+    <text x="613" y="110" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="9" font-weight="100" fill="#c8d0e0" opacity="0.5">rate limiting AFTER auth — bold choice</text>
+
+    <!-- Callout 4: Rate Limiter → Session Cache — curved path complaint -->
+    <rect x="556" y="192" width="214" height="20" rx="3" stroke-width="0.7" stroke-dasharray="1.5 2"/>
+    <line x1="556" y1="202" x2="494" y2="202" stroke-width="0.7" stroke-dasharray="2 2"/>
+    <text x="663" y="206" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="9" font-weight="100" fill="#c8d0e0" opacity="0.5">rate limiter writing to session cache directly??</text>
+
+    <!-- Callout 5: write-through cache — between User Service and Session Cache -->
+    <rect x="244" y="256" width="174" height="20" rx="3" stroke-width="0.7" stroke-dasharray="1.5 2"/>
+    <line x1="304" y1="276" x2="304" y2="287" stroke-width="0.7" stroke-dasharray="2 2"/>
+    <text x="331" y="270" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="9" font-weight="100" fill="#c8d0e0" opacity="0.5">write-through cache (pray it stays consistent)</text>
+
+    <!-- Callout 6: Config → Event Bus dashed — what config does the event bus need -->
+    <rect x="748" y="160" width="212" height="20" rx="3" stroke-width="0.7" stroke-dasharray="1.5 2"/>
+    <line x1="748" y1="170" x2="700" y2="185" stroke-width="0.7" stroke-dasharray="2 2"/>
+    <text x="854" y="174" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="9" font-weight="100" fill="#c8d0e0" opacity="0.5">config fan-out here for reasons nobody recalls</text>
+
+    <!-- Callout 7: partitioned by user_id — below Event Bus -->
+    <rect x="570" y="336" width="210" height="20" rx="3" stroke-width="0.7" stroke-dasharray="1.5 2"/>
+    <line x1="642" y1="336" x2="642" y2="308" stroke-width="0.7" stroke-dasharray="2 2"/>
+    <text x="675" y="350" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="9" font-weight="100" fill="#c8d0e0" opacity="0.5">partitioned by user_id (hotspot waiting to happen)</text>
+
+    <!-- Callout 8: at-least-once delivery — below Worker Pool -->
+    <rect x="794" y="336" width="214" height="20" rx="3" stroke-width="0.7" stroke-dasharray="1.5 2"/>
+    <line x1="872" y1="336" x2="872" y2="308" stroke-width="0.7" stroke-dasharray="2 2"/>
+    <text x="901" y="350" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="9" font-weight="100" fill="#c8d0e0" opacity="0.5">at-least-once · idempotency left as exercise</text>
+
+    <!-- Callout 9: Worker Pool → Object Store — why the curve -->
+    <rect x="890" y="390" width="202" height="20" rx="3" stroke-width="0.7" stroke-dasharray="1.5 2"/>
+    <line x1="890" y1="400" x2="870" y2="380" stroke-width="0.7" stroke-dasharray="2 2"/>
+    <text x="991" y="404" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="9" font-weight="100" fill="#c8d0e0" opacity="0.5">why does the worker write to object store</text>
+
+    <!-- Callout 10: async replication — below DB Primary→Replica -->
+    <rect x="290" y="510" width="228" height="20" rx="3" stroke-width="0.7" stroke-dasharray="1.5 2"/>
+    <line x1="392" y1="510" x2="392" y2="488" stroke-width="0.7" stroke-dasharray="2 2"/>
+    <text x="404" y="524" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="9" font-weight="100" fill="#c8d0e0" opacity="0.5">~50ms replication lag · reads may be stale · sorry</text>
+
+    <!-- Callout 11: Observability → Worker Pool — observability as an afterthought -->
+    <rect x="972" y="160" width="196" height="20" rx="3" stroke-width="0.7" stroke-dasharray="1.5 2"/>
+    <line x1="972" y1="170" x2="962" y2="180" stroke-width="0.7" stroke-dasharray="2 2"/>
+    <text x="1070" y="174" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="9" font-weight="100" fill="#c8d0e0" opacity="0.5">observability added in sprint 47, post-incident</text>
+
+  </g>
+</svg>

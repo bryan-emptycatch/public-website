@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Monitor screen -->
+  <rect x="2" y="3" width="20" height="14" rx="2" />
+  <!-- Live pulse on screen -->
+  <polyline points="5 13 7.5 8 10 13 12.5 10 15 13 17.5 11 19 13" stroke-width="1.2" />
+  <!-- Stand -->
+  <line x1="8" y1="21" x2="16" y2="21" />
+  <line x1="12" y1="17" x2="12" y2="21" />
+</svg>

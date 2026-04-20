@@ -1,0 +1,50 @@
+<svg viewBox="0 0 680 410" xmlns="http://www.w3.org/2000/svg"
+     font-family="DM Sans, system-ui, sans-serif">
+
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="7" refY="3.5" orient="auto">
+      <polygon points="0,0 7,3.5 0,7" fill="rgba(255,255,255,0.28)"/>
+    </marker>
+  </defs>
+
+  <!-- Section labels -->
+  <text x="130" y="148" text-anchor="middle" fill="#aaaaaa" font-size="11">1 change</text>
+  <text x="520" y="26" text-anchor="middle" fill="#aaaaaa" font-size="11">4 test files need updating</text>
+
+  <!-- Source: UserService -->
+  <rect x="30" y="160" width="200" height="80" rx="8"
+        fill="rgba(243,143,90,0.14)" stroke="rgba(243,143,90,0.45)" stroke-width="1.5"/>
+  <text x="130" y="194" text-anchor="middle" fill="#f38f5a" font-size="13" font-weight="600">UserService</text>
+  <text x="130" y="214" text-anchor="middle" fill="#f38f5a" font-size="11">interface changed</text>
+
+  <!-- Fan of arrows from source right edge (230, 200) to target left edge (388) -->
+  <line x1="230" y1="200" x2="388" y2="72"  stroke="rgba(255,255,255,0.2)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="230" y1="200" x2="388" y2="162" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="230" y1="200" x2="388" y2="252" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="230" y1="200" x2="388" y2="342" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Target 1: UserServiceTest (the direct test) -->
+  <rect x="390" y="45" width="260" height="55" rx="8"
+        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.13)" stroke-width="1.5"/>
+  <text x="520" y="67" text-anchor="middle" fill="#f4f4f4" font-size="12" font-weight="500">UserServiceTest</text>
+  <text x="520" y="86" text-anchor="middle" fill="#aaaaaa" font-size="10">test logic needs updating</text>
+
+  <!-- Target 2: OrderServiceTest -->
+  <rect x="390" y="135" width="260" height="55" rx="8"
+        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.13)" stroke-width="1.5"/>
+  <text x="520" y="157" text-anchor="middle" fill="#f4f4f4" font-size="12" font-weight="500">OrderServiceTest</text>
+  <text x="520" y="176" text-anchor="middle" fill="#aaaaaa" font-size="10">UserService mock is stale</text>
+
+  <!-- Target 3: PaymentServiceTest -->
+  <rect x="390" y="225" width="260" height="55" rx="8"
+        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.13)" stroke-width="1.5"/>
+  <text x="520" y="247" text-anchor="middle" fill="#f4f4f4" font-size="12" font-weight="500">PaymentServiceTest</text>
+  <text x="520" y="266" text-anchor="middle" fill="#aaaaaa" font-size="10">UserService mock is stale</text>
+
+  <!-- Target 4: AccountServiceTest -->
+  <rect x="390" y="315" width="260" height="55" rx="8"
+        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.13)" stroke-width="1.5"/>
+  <text x="520" y="337" text-anchor="middle" fill="#f4f4f4" font-size="12" font-weight="500">AccountServiceTest</text>
+  <text x="520" y="356" text-anchor="middle" fill="#aaaaaa" font-size="10">UserService mock is stale</text>
+
+</svg>

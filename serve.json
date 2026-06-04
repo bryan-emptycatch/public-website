@@ -1,0 +1,3 @@
+{
+  "rewrites": [{ "source": "/decks/xss/**", "destination": "/decks/xss/index.html" }]
+}

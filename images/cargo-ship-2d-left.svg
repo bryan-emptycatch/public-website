@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">2D Cargo Ship Sailing Left</title>
+  <desc id="desc">A flat 2D cargo ship sailing to the left on calm water.</desc>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dff2ff" />
+      <stop offset="100%" stop-color="#f8fcff" />
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#79c0e8" />
+      <stop offset="100%" stop-color="#2e79aa" />
+    </linearGradient>
+    <style>
+      .line { stroke: #1c2f49; stroke-width: 3; }
+      .thin { stroke: #2b456a; stroke-width: 2; }
+      .water-line { stroke: #9ed7f5; stroke-width: 4; fill: none; opacity: 0.65; }
+      .label { font: 600 18px 'Segoe UI', Tahoma, sans-serif; fill: #1c3555; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="700" fill="url(#sky)" />
+  <rect x="0" y="430" width="1200" height="270" fill="url(#sea)" />
+
+  <!-- Water texture -->
+  <path class="water-line" d="M40 500 C130 485, 220 515, 310 500 C400 485, 490 515, 580 500 C670 485, 760 515, 850 500 C940 485, 1030 515, 1160 500" />
+  <path class="water-line" d="M10 545 C95 530, 185 560, 275 545 C365 530, 455 560, 545 545 C635 530, 725 560, 815 545 C905 530, 995 560, 1180 545" />
+
+  <!-- Ship hull (left facing) -->
+  <polygon class="line" fill="#334a68" points="110,455 940,455 900,530 70,530" />
+  <polygon class="line" fill="#2a3f5a" points="70,530 110,455 170,455 120,530" />
+
+  <!-- Deck line -->
+  <line class="thin" x1="150" y1="455" x2="910" y2="455" />
+
+  <!-- Containers -->
+  <rect class="line" x="220" y="360" width="150" height="95" fill="#d66a4f" />
+  <rect class="line" x="380" y="360" width="150" height="95" fill="#4b9b84" />
+  <rect class="line" x="540" y="360" width="150" height="95" fill="#d8af49" />
+  <rect class="line" x="700" y="360" width="150" height="95" fill="#7a92b0" />
+
+  <!-- Bridge -->
+  <rect class="line" x="860" y="305" width="115" height="150" fill="#e6edf5" />
+  <rect class="line" x="875" y="328" width="22" height="16" fill="#85b9dc" />
+  <rect class="line" x="903" y="328" width="22" height="16" fill="#85b9dc" />
+  <rect class="line" x="931" y="328" width="22" height="16" fill="#85b9dc" />
+
+  <!-- Smoke stack -->
+  <rect class="line" x="900" y="265" width="30" height="40" fill="#b8c4d1" />
+
+  <!-- Wake on right side (stern) -->
+  <path class="water-line" d="M950 470 C1020 485, 1090 500, 1180 510" />
+  <path class="water-line" d="M930 495 C1010 515, 1080 540, 1180 552" />
+
+  <text class="label" x="600" y="85" text-anchor="middle">Basic 2D Cargo Ship (Sailing Left)</text>
+</svg>

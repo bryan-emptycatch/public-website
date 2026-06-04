@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Basic Cargo Ship Sailing Left</title>
+  <desc id="desc">A simple 3D perspective cargo ship sailing toward the left on ocean water.</desc>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d9efff"/>
+      <stop offset="100%" stop-color="#f8fcff"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7ec4ea"/>
+      <stop offset="100%" stop-color="#2b77a8"/>
+    </linearGradient>
+    <linearGradient id="hullSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2f3f56"/>
+      <stop offset="100%" stop-color="#1f2d40"/>
+    </linearGradient>
+    <linearGradient id="hullTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#516783"/>
+      <stop offset="100%" stop-color="#364b66"/>
+    </linearGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#cfd8e3"/>
+      <stop offset="100%" stop-color="#a8b5c6"/>
+    </linearGradient>
+    <style>
+      .line { stroke: #1b2a3f; stroke-width: 2; }
+      .soft { opacity: 0.65; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="1200" height="700" fill="url(#sky)"/>
+  <rect x="0" y="440" width="1200" height="260" fill="url(#water)"/>
+
+  <!-- Water ripples -->
+  <g class="soft" fill="none" stroke="#9ed7f5" stroke-width="3">
+    <path d="M80 485 C170 470, 250 500, 340 486 C430 472, 520 500, 610 486 C700 472, 790 500, 880 486 C970 472, 1060 500, 1140 486"/>
+    <path d="M120 520 C220 505, 300 536, 395 520 C490 505, 580 536, 675 520 C770 505, 860 536, 955 520 C1050 505, 1110 532, 1170 520"/>
+    <path d="M40 555 C130 540, 210 570, 300 556 C390 542, 480 570, 570 556 C660 542, 750 570, 840 556 C930 542, 1020 570, 1120 556"/>
+  </g>
+
+  <!-- Hull (sailing left) -->
+  <!-- Top face -->
+  <polygon points="250,360 930,390 860,430 170,400" fill="url(#hullTop)" class="line"/>
+  <!-- Side face -->
+  <polygon points="170,400 860,430 780,520 85,485" fill="url(#hullSide)" class="line"/>
+  <!-- Bow face -->
+  <polygon points="85,485 170,400 250,360 160,445" fill="#425773" class="line"/>
+
+  <!-- Deck -->
+  <polygon points="300,340 885,367 840,392 245,365" fill="url(#deck)" class="line"/>
+
+  <!-- Cargo blocks -->
+  <g>
+    <polygon points="340,325 510,333 500,352 325,345" fill="#d86c55" class="line"/>
+    <polygon points="325,345 500,352 500,385 325,377" fill="#b84f3c" class="line"/>
+
+    <polygon points="520,335 690,343 680,362 510,354" fill="#4c9a85" class="line"/>
+    <polygon points="510,354 680,362 680,392 510,384" fill="#367664" class="line"/>
+
+    <polygon points="700,344 840,350 832,368 690,362" fill="#d0a944" class="line"/>
+    <polygon points="690,362 832,368 832,395 690,389" fill="#ab8832" class="line"/>
+  </g>
+
+  <!-- Bridge / cabin -->
+  <g>
+    <polygon points="760,292 840,296 824,320 742,315" fill="#f1f5f9" class="line"/>
+    <polygon points="742,315 824,320 824,378 742,372" fill="#dbe3ec" class="line"/>
+    <polygon points="824,320 860,326 860,382 824,378" fill="#c9d4e0" class="line"/>
+    <rect x="752" y="332" width="20" height="12" fill="#7fb3da" class="line"/>
+    <rect x="777" y="334" width="20" height="12" fill="#7fb3da" class="line"/>
+    <rect x="802" y="336" width="14" height="12" fill="#7fb3da" class="line"/>
+  </g>
+
+  <!-- Wake at stern -->
+  <g fill="none" stroke="#d7f2ff" stroke-width="5" class="soft">
+    <path d="M935 420 C990 430, 1050 450, 1140 455"/>
+    <path d="M910 445 C995 460, 1060 485, 1160 495"/>
+    <path d="M885 470 C980 492, 1060 518, 1170 530"/>
+  </g>
+</svg>

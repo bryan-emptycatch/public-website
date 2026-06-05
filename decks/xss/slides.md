@@ -1,6 +1,15 @@
 ---
 background: '#0b0b0b'
 colorSchema: dark
+head: |
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-88BFTGK71E"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-88BFTGK71E');
+  </script>
 ---
 
 # Cross-Site Scripting

@@ -2,6 +2,9 @@
 background: '#0b0b0b'
 colorSchema: dark
 head: |
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://www.googletagmanager.com">
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-88BFTGK71E"></script>
   <script>
@@ -10,6 +13,10 @@ head: |
     gtag('js', new Date());
     gtag('config', 'G-88BFTGK71E');
   </script>
+  <style>
+    html, body { background: #0b0b0b; margin: 0; }
+    #app { background: #0b0b0b; min-height: 100vh; }
+  </style>
 ---
 
 # Cross-Site Scripting
